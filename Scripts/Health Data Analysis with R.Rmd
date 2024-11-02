@@ -1,0 +1,160 @@
+---
+title: "Health & Lifestyle Analytics Project "
+output:
+  pdf_document: default
+  html_document: default
+
+date: "2024-02-19"
+
+---
+ 
+## Loading dataset
+```{r cars1}
+Sleep_health_and_lifestyle_dataset = read.csv("C:/Users/samba/OneDrive/Desktop/R assignment/Sleep_health_and_lifestyle_dataset.csv", na.strings="None")
+View(Sleep_health_and_lifestyle_dataset)
+```
+## 1.Printing structure of dataset
+
+```{r cars2}
+str(Sleep_health_and_lifestyle_dataset)
+```
+## 2.Listing variables in dataset
+```{r car3}
+names(Sleep_health_and_lifestyle_dataset)
+
+```
+## 3.Printing top 15 rows of dataset
+```{r cars4}
+head(Sleep_health_and_lifestyle_dataset,15)
+
+```
+## 4.Writing user-defined function to categorize according to age
+```{r cars5}
+age_categorization=function(age){
+  if (age<18){return('Minor')}
+  else if(age>=18 && age<=64){return('Adult')}
+  else {return('Senior')}
+}
+
+```
+## 5. Data manipulation to filter rows
+```{r cars6}
+library(dplyr)
+Female_gender= Sleep_health_and_lifestyle_dataset %>%
+  filter(Gender=="Female")
+head(Female_gender)
+```
+## 6.Identifying the dependent & independent variables and using reshaping techniques cbind and merge to create a new data frame by joining those variables from the dataset.
+```{r cars7}
+independent_variable=Sleep_health_and_lifestyle_dataset[,c("Person.ID","Physical.Activity.Level","Stress.Level","Age")]
+dependent_variable=Sleep_health_and_lifestyle_dataset[,c("Person.ID","Quality.of.Sleep")]
+combined_column=cbind(independent_variable,dependent_variable)
+merge_data=merge(independent_variable,dependent_variable, by="Person.ID")
+combined_column
+merge_data
+```
+## 7. Removing missing values
+```{r cars8}
+Sleep_health_removed_missing_values=Sleep_health_and_lifestyle_dataset %>%
+  filter(!is.na(Sleep.Disorder))
+Sleep_health_removed_missing_values
+```
+## 8. Identifying and removing duplicated data from dataset
+```{r cars9}
+identifying_duplicated_data=duplicated(Sleep_health_and_lifestyle_dataset)
+str(identifying_duplicated_data)
+identifying_duplicated_data
+
+removed_duplicated_data=Sleep_health_and_lifestyle_dataset %>% distinct(Age,Occupation,.keep_all = TRUE)
+str(removed_duplicated_data)
+removed_duplicated_data
+```
+## 9. Reordering multiple rows in descending order
+```{r cars10}
+reorder_data_descending=Sleep_health_and_lifestyle_dataset %>%
+  arrange(desc(Person.ID),desc(Age),desc(Heart.Rate))
+reorder_data_descending
+```   
+## 10.Renameing some of the column names in the dataset.
+```{r cars11}
+##using dplyr function
+Sleep_health_and_lifestyle_dataset_renamed_dplyr=Sleep_health_and_lifestyle_dataset %>%
+  rename(Person_ID=Person.ID,Heart_Rate=Heart.Rate) 
+## Using R function
+Sleep_health_and_lifestyle_dataset_renamed_r=Sleep_health_and_lifestyle_dataset_renamed_dplyr
+colnames(Sleep_health_and_lifestyle_dataset_renamed_r)
+names(Sleep_health_and_lifestyle_dataset_renamed_r)[names(Sleep_health_and_lifestyle_dataset_renamed_r)=="Stress.Level"]="Stress_Level"
+names(Sleep_health_and_lifestyle_dataset_renamed_r)[names(Sleep_health_and_lifestyle_dataset_renamed_r)=="Heart.Rate"]="Heart_Rate"
+```
+
+## 11. Adding new variables in the data frame by using a mathematical function and add it as a new variable to the data frame(used formula:Heart rate max=207-age*0.7)
+```{r cars12}
+sleep_health_hr_max=Sleep_health_and_lifestyle_dataset %>%
+  mutate(Heart_Rate_Max=207-Age*0.7)
+sleep_health_hr_max
+```
+## 12. Creating a training set using a random number generator engine.
+```{r cars13}
+set.seed(1234)
+training_5_rows=Sleep_health_and_lifestyle_dataset %>%
+  sample_n(5,replace = TRUE)
+training_10_percent_rows=Sleep_health_and_lifestyle_dataset%>%
+  sample_frac(0.1,replace = TRUE)
+training_10_percent_rows
+```
+
+## 13. Printing summary statistics of the dataset (gender)
+```{r cars14}
+library(dplyr)
+gender_summary=Sleep_health_and_lifestyle_dataset%>%
+  group_by(Gender)%>%
+  summarise_if(is.numeric,mean,na.rm=TRUE)
+gender_summary
+
+## summarizing all
+dataset_summary=Sleep_health_and_lifestyle_dataset%>%
+  summarise_if(is.numeric,mean,na.rm=TRUE)
+dataset_summary
+```
+
+## 14. Using the numerical variables from the dataset age and performing the given statistical functions. (Mean,Median,Mode,Range)
+
+```{r cars15}
+library(DescTools)
+mean(Sleep_health_and_lifestyle_dataset$Age,na.rm = TRUE)
+median(Sleep_health_and_lifestyle_dataset$Age,na.rm=TRUE)
+Mode(Sleep_health_and_lifestyle_dataset$Heart.Rate)
+range(Sleep_health_and_lifestyle_dataset$Age,na.rm = TRUE)
+```
+## finding mode using user-defined function
+```{r cars16}
+mode_formula=function(x){
+unique_x=unique(x)
+tabulate_x=tabulate(match(x,unique_x))
+unique_x[tabulate_x==max(tabulate_x)]
+}
+mode_formula(Sleep_health_and_lifestyle_dataset$Heart.Rate)
+```
+
+## 15. Plotting a scatter plot for any 2 variables in your dataset
+
+```{r cars17}
+library(ggplot2)
+ggplot(Sleep_health_and_lifestyle_dataset, aes(x =`Heart.Rate`, y
+= `Stress.Level`))+ geom_point(size =
+2, color = "blue", shape =
+25)
+```
+
+## 16. Plotting a bar plot for 2 variables age and sleep duration in your dataset
+
+```{r cars18}
+ggplot(data = Sleep_health_and_lifestyle_dataset,aes(x = Age, fill=Sleep.Duration))+geom_bar(fill = "red")
+```
+
+## 17. Finding the correlation between 2 variables sleep duration and age by applying least square linear regression model.
+
+```{r cars19}
+cor(Sleep_health_and_lifestyle_dataset$Age,Sleep_health_and_lifestyle_dataset$Sleep.Duration, method="pearson")
+```
+
